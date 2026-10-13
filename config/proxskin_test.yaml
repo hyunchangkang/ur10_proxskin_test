@@ -1,0 +1,56 @@
+proxskin_test:
+  ros__parameters:
+    robot_name: "UR10_right"
+
+    # eCAN TCP client settings (same endpoint/protocol as Prox_sensor_React)
+    # false: robot-only CSV; true: wait for fresh selected sensor data before scanning.
+    enable_ecan: true
+    can_server_ip: "192.168.253.225"
+    can_server_port: 4001
+    reconnect_interval_sec: 1.0
+    socket_connect_timeout_sec: 1.0
+    sensor_stale_timeout_sec: 0.5
+
+    # Keep current J1; common initial J2..J6 angles in degrees.
+    initial_arm_joint_deg: [-90.0, -90.0, -90.0, 90.0, -90.0]
+    initial_move_velocity_rad_s: 0.1
+
+    # Track CAN IDs as hex values.
+    tracked_can_ids: [0x41, 0x42, 0x43]
+
+    # CSV output
+    csv_save_dir: "/home/ur/ros2_ws/src/ur10_proxskin_test/data"
+    # CSV sensor: CAN 0x41 front four bytes, big-endian unsigned raw count.
+    csv_sensor_can_id: 0x41
+    csv_sensor_channel: "front"
+
+    # Motion / scan settings
+    control_rate: 125.0
+    x_offset_mm: 0.0
+    # Direct legacy raster uses Y; menu mode 3 uses X and holds Y fixed.
+    y_span_mm: 600.0
+    x_span_mm: 600.0
+    x_direction: "centered"
+    z_span_mm: 300.0
+    spacing_mm: 1.0
+    scan_speed_mm_s: 50.0
+
+    # # Orientation options
+    # use_fixed_orientation: false
+    # roll_deg: -179.0
+    # pitch_deg: 0.01
+    # yaw_deg: -89.0
+
+    # # Wrist lock options
+    # fix_wrist_joints: false
+    # wrist1_deg: -90.0
+    # wrist2_deg: -90.0
+    # wrist3_deg: 0.0
+
+    # Motion limits
+    approach_vel_rad_s: 0.1
+    max_joint_velocity_rad_s: 1.0
+    endpoint_position_tolerance_mm: 0.1
+    endpoint_orientation_tolerance_deg: 0.1
+    endpoint_settle_seconds: 0.25
+    endpoint_timeout_seconds: 5.0

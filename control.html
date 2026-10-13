@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>UR10 실험 제어</title>
+  <style>
+    :root{color-scheme:light;--ink:#182b41;--muted:#617187;--blue:#1766d3;--line:#dce5ef;--red:#c3323e;--green:#187b52}*{box-sizing:border-box}body{margin:0;background:#f3f6fa;color:var(--ink);font:15px/1.6 system-ui,-apple-system,"Noto Sans KR",sans-serif}main{max-width:1060px;margin:auto;padding:32px 22px}h1,h2,h3,p{margin-top:0}h1{font-size:30px;letter-spacing:-1px;margin-bottom:6px}h2{font-size:20px;margin-bottom:16px}h3{font-size:16px}.muted,small{color:var(--muted)}a{color:var(--blue)}.top{display:flex;justify-content:space-between;gap:20px;align-items:center;margin-bottom:20px}.eyebrow{color:var(--blue);font-size:11px;letter-spacing:2px;font-weight:750;margin-bottom:6px}.card{padding:22px;background:white;border:1px solid var(--line);border-radius:15px;margin-top:16px}.status-row{display:flex;gap:8px;flex-wrap:wrap}.status{padding:7px 11px;border-radius:20px;font-size:12px;background:#e8edf4;color:var(--muted)}.status.good{background:#e3f3eb;color:var(--green)}.status.bad{background:#fff0ed;color:#a33d26}.summary{display:flex;justify-content:space-between;gap:20px;align-items:center}.summary b{font-size:22px}.summary p{margin:0}.modes{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:20px 0}.modes button{padding:15px 10px;text-align:left;background:white;border:1px solid var(--line);border-radius:11px;line-height:1.4}.modes strong{display:block;font-size:25px;margin-bottom:5px}.modes button[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:white}.modes button:nth-child(3){margin-left:8px}button,input{font:inherit}button{cursor:pointer;border:1px solid #c8d5e4;border-radius:9px;padding:10px 16px;background:white;color:var(--ink);font-weight:600}button:hover:not(:disabled){border-color:var(--blue);box-shadow:0 0 0 2px #1766d31a}button:disabled{opacity:.45;cursor:not-allowed}button.primary{background:var(--blue);border-color:var(--blue);color:white}button.stop{background:var(--red);border-color:var(--red);color:white;min-width:135px}button:focus-visible,input:focus-visible{outline:3px solid #75a9f2;outline-offset:3px}.buttons{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}.panel{background:#f5f8fc;padding:20px;border-radius:11px;min-height:155px}.fields{display:flex;gap:18px;flex-wrap:wrap;margin:18px 0}.fields label{display:flex;align-items:center;gap:8px;font-size:14px}input{width:108px;padding:8px 10px;border:1px solid #c0cfdf;border-radius:8px;color:var(--ink);background:white}.path{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;margin:12px 0}.path span{border:1px solid var(--line);background:white;padding:6px 10px;border-radius:7px}.path i{font-style:normal;color:var(--blue)}.info{font-size:13px;margin-top:12px;color:var(--muted)}.error{background:#fff0ed;color:#a33126;padding:12px 15px;border-radius:9px;margin-top:14px;white-space:pre-wrap}.columns{display:grid;grid-template-columns:1fr 1fr;gap:16px}.columns .card{min-width:0}.files{font-size:12px;overflow-wrap:anywhere}.files a{display:block;padding:7px 0;border-bottom:1px solid var(--line)}pre{background:#132338;color:#e4eefc;padding:16px;border-radius:9px;overflow:auto;font:12px/1.8 ui-monospace,Consolas,monospace}.logs{max-height:250px;min-height:140px;white-space:pre-wrap;overflow-wrap:anywhere}.offline{background:#edf4ff;border:1px solid #bcd5fa}.inline-code,code{font-family:ui-monospace,Consolas,monospace;font-size:.88em}details summary{cursor:pointer;font-weight:600}details[open] summary{margin-bottom:12px}[hidden]{display:none!important}@media(max-width:700px){main{padding:20px 12px}.top,.summary{align-items:flex-start}.top{flex-wrap:wrap}.card{padding:16px}.modes{gap:4px}.modes button{padding:12px 5px;font-size:11px}.modes button:nth-child(3){margin-left:3px}.columns{grid-template-columns:1fr}.summary b{font-size:18px}.panel{padding:16px}}
+  </style>
+  <style>
+    .plot-heading{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}.plot-heading h2{margin-bottom:4px}.plot-file{font-size:12px;overflow-wrap:anywhere;margin:0}.plot-controls{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin:18px 0 8px}.plot-controls label{display:flex;align-items:center;gap:7px;font-size:14px;cursor:pointer}.plot-controls input{width:17px;height:17px;accent-color:var(--blue)}.plot-controls label.sensor{color:#b45e09}.plot-controls label.robot{color:var(--blue)}.plot-controls .sensor input{accent-color:#df7a19}.plot-area{position:relative;height:350px;min-width:0}.plot-area canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}.plot-area canvas.dragging{cursor:grabbing}.plot-tools{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}.plot-tools button{padding:6px 12px;font-size:13px}.files{max-height:310px;overflow:auto}.file-row{display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--line);padding:5px 0}.file-row button{flex:1;min-width:0;text-align:left;overflow-wrap:anywhere;font-size:12px;padding:8px}.file-row button[aria-pressed="true"]{background:#edf4ff;border-color:var(--blue);color:var(--blue)}.file-row a{flex:none;border:0;padding:8px;font-size:12px}.plot-tooltip{position:absolute;pointer-events:none;background:#15263ceF;color:white;border-radius:8px;padding:9px 12px;font-size:12px;white-space:pre;box-shadow:0 3px 15px #15263c30;z-index:1}.plot-note{margin:8px 0 0;font-size:12px;color:var(--muted)}@media(max-width:700px){.plot-controls{gap:12px}.plot-area{height:300px}}
+  </style>
+</head>
+<body>
+<main>
+  <header class="top">
+    <div><p class="eyebrow">UR10 · CONTROL</p><h1>UR10 실험 제어</h1><p class="muted" style="margin-bottom:0">0 기본 자세 → 1 시작점 설정 → 2·3·4 실험</p></div>
+    <a href="./guide" target="_blank" rel="noopener">모드 설명 보기 ↗</a>
+  </header>
+  <div id="offline" class="card offline" hidden>
+    <h2>웹 제어 서버를 켜주세요</h2><p>기존 실험 launch를 종료하고, 드라이버와 같은 ROS_DOMAIN_ID로 실행합니다.</p>
+    <pre>source /opt/ros/humble/setup.bash
+source /home/ur/ros2_ws/install/setup.bash
+export ROS_DOMAIN_ID=125
+ros2 run ur10_proxskin_test web_control</pre>
+    <a href="http://127.0.0.1:8765">http://127.0.0.1:8765 열기 →</a>
+  </div>
+  <div class="status-row" aria-live="polite"><span id="server-status" class="status">서버 연결 중</span><span id="robot-status" class="status">로봇 피드백 확인 중</span><span id="domain-status" class="status">ROS_DOMAIN_ID —</span></div>
+  <section class="columns" aria-label="프로그램 실행">
+    <article class="card"><h2>① 드라이버</h2><p><code>ros2 run urcb2_driver single_arm</code></p><div class="buttons"><button id="driver-start" class="primary" disabled>드라이버 실행</button><button id="driver-stop" disabled>드라이버 종료</button></div><p id="driver-info" class="info">서버에 연결하면 실행할 수 있습니다.</p></article>
+    <article class="card"><h2>② 실험 메뉴</h2><p><code>ros2 launch ur10_proxskin_test<br>proxskin_soc_test.launch.py</code></p><div class="buttons"><button id="connect" class="primary" disabled>실험 메뉴 실행</button></div><p id="experiment-info" class="info">메뉴 실행 후 아래에서 모드를 선택하세요.</p></article>
+  </section>
+  <section class="card">
+    <div class="summary"><div><p class="muted" style="font-size:12px">현재 작업</p><b id="phase" aria-live="polite">연결 중</b></div><button id="stop" class="stop" disabled>■ 중단 · 메뉴로</button></div>
+    <div id="error" class="error" role="alert" hidden></div>
+    <nav class="modes" aria-label="실험 모드 선택">
+      <button data-mode="0" aria-pressed="false" disabled><strong>0</strong>기본 자세</button>
+      <button data-mode="1" aria-pressed="false" disabled><strong>1</strong>시작점 설정</button>
+      <button data-mode="2" aria-pressed="false" disabled><strong>2</strong>Z 왕복</button>
+      <button data-mode="3" aria-pressed="false" disabled><strong>3</strong>X-Z 스캔</button>
+      <button data-mode="4" aria-pressed="false" disabled><strong>4</strong>1cm 정지 왕복</button>
+    </nav>
+    <div id="panel" class="panel"><p class="muted">서버에 연결하면 모드를 선택할 수 있습니다.</p></div>
+    <p class="info">2~4번 중단 → CSV 저장 → 1번에서 저장한 시작점으로 복귀 → 메뉴. 복귀 중 다시 중단하면 복귀도 멈춥니다.</p>
+  </section>
+  <section class="card" aria-labelledby="plot-title">
+    <div class="plot-heading"><div><h2 id="plot-title">CSV 그래프</h2><p id="plot-file" class="plot-file muted">CSV 기록 없음</p></div><div class="plot-tools"><button id="plot-latest" disabled>최신 CSV 보기</button><button id="plot-refresh" disabled>↻ 새로고침</button></div></div>
+    <div class="plot-controls">
+      <label class="robot"><input id="plot-robot" type="checkbox" checked>2열 · 로봇 거리(mm)</label>
+      <label class="sensor"><input id="plot-sensor" type="checkbox" checked>3열 · 센서값(raw)</label>
+    </div>
+    <div class="plot-tools"><button id="plot-zoom-in" disabled>＋ 확대</button><button id="plot-zoom-out" disabled>− 축소</button><button id="plot-reset" disabled>전체 보기</button><small>휠: 확대·축소 · 드래그: 이동 · 더블클릭: 전체 보기</small></div>
+    <div class="plot-area" id="plot-area"><canvas id="plot-canvas" role="img" aria-label="시간에 따른 로봇 거리와 센서값 그래프"></canvas><div id="plot-tooltip" class="plot-tooltip" hidden></div></div>
+    <p id="plot-message" class="plot-note" aria-live="polite">실험을 마치면 가장 최근 CSV를 자동으로 표시합니다.</p>
+    <p class="plot-note">CSV의 모든 행을 생략 없이 표시합니다. 겹쳐 보이는 점은 확대해 확인하세요.</p>
+    <p class="plot-note">X축: 시간(s) · 왼쪽 Y축: 로봇 거리(mm) · 오른쪽 Y축: 센서값(raw). 체크를 끄면 해당 선을 숨깁니다. 센서 빈칸은 선을 끊어 표시합니다.</p>
+    <p class="plot-note">아래 CSV 목록에서 파일을 누르면 그래프가 표시됩니다. 선택한 파일은 그대로 유지됩니다. 최신 CSV 보기로 자동 갱신에 복귀합니다. 실행 중에는 새로고침으로 저장된 기록을 확인하세요.</p>
+  </section>
+  <div class="columns">
+    <section class="card"><h2>저장한 시작점</h2><p id="saved" class="muted">확인 중</p><p class="info">stroke만큼 베이스 −Z로 하강합니다. 시작점이 stroke mm, 아래 끝점이 0mm입니다.</p><h3 style="margin-top:22px">CSV 목록 <small>파일 클릭 → 그래프</small></h3><div id="files" class="files muted">기록 없음</div><p class="info">100Hz · 시간 · 실제 TCP Z 거리(mm) · CAN 0x41 센서값</p></section>
+    <section class="card"><details open><summary>실행 로그</summary><pre id="logs" class="logs" aria-label="실험 실행 로그">모드를 실행하면 터미널 로그가 표시됩니다.</pre></details></section>
+  </div>
+  <details class="card"><summary>처음 실행하는 방법</summary><p>로컬 웹 서버를 터미널에서 한 번 실행합니다.</p><pre>source /opt/ros/humble/setup.bash
+source /home/ur/ros2_ws/install/setup.bash
+export ROS_DOMAIN_ID=125
+ros2 run ur10_proxskin_test web_control</pre><p>명령을 실행하면 브라우저에서 <a href="http://127.0.0.1:8765">http://127.0.0.1:8765</a>가 자동으로 열립니다. <b>드라이버 실행 → 실험 메뉴 실행 → 모드 선택</b> 순서로 누릅니다.</p><small>기존 드라이버를 계속 사용해도 됩니다. 이 경우 ROS_DOMAIN_ID를 같게 맞추세요. 서버 시작만으로는 로봇이 움직이지 않습니다.</small></details>
+</main>
+<script>
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const buttons = [...document.querySelectorAll('[data-mode]')];
+  const titles = ['기본 자세','시작점 설정','Z 왕복','X-Z 스캔','1cm 정지 왕복'];
+  const phases = {menu:'모드를 선택하세요',connecting:'실험 메뉴 연결 중',starting:'실험 준비 중',running:'동작 중',choose_start:'현재 위치를 사용할까요?',distance:'시작 거리 · stroke 입력',adjust:'위치 조정',jogging:'Z 이동 중',aligning:'현재 위치에서 정렬 중',stopping:'중단 중',cancelling:'중단 중',returning:'저장한 시작점으로 복귀 중'};
+  let state=null, selected=null, connected=false, pendingActions=0, panelKey='', lastLog=0, previousPhase='menu', stateError=false;
+  const values={repeats:1,dwell:2,distance:200,delta:10};
+  let plotData=null, plotBusy=false, plotVersion='', plotAttempt='', plotAttemptTime=0, plotView=null;
+  let plotSelection=null, plotZoom=[0,1,0,1], plotDrag=null, fileListKey='';
+  const plotCanvas=$('plot-canvas'), plotContext=plotCanvas.getContext('2d');
+  const plotImage=document.createElement('canvas');
+  let plotRangeSource=null, plotRanges=[];
+  function cachePlotImage(){plotImage.width=plotCanvas.width;plotImage.height=plotCanvas.height;plotImage.getContext('2d').drawImage(plotCanvas,0,0);}
+  function plotIndex(time){
+    const points=plotData.points;let lo=0,hi=points.length;
+    while(lo<hi){const mid=(lo+hi)>>1;if(points[mid][0]<time)lo=mid+1;else hi=mid;}
+    return lo;
+  }
+  function drawPlotHover(index=-1){
+    if(!plotImage.width||!plotImage.height)return;
+    const width=plotCanvas.clientWidth,height=plotCanvas.clientHeight;
+    plotContext.drawImage(plotImage,0,0,width,height);
+    if(index<0||!plotView)return;
+    const {left,end,top,bottom,timeMin,timeMax}=plotView;
+    const xx=left+(plotData.points[index][0]-timeMin)/(timeMax-timeMin)*(end-left);
+    if(xx<left||xx>end)return;
+    plotContext.save();plotContext.strokeStyle='#8090a7';plotContext.lineWidth=1;plotContext.setLineDash([4,4]);plotContext.beginPath();plotContext.moveTo(xx,top);plotContext.lineTo(xx,bottom);plotContext.stroke();plotContext.restore();
+  }
+  function plotKey(file){return file?file.name+':'+file.bytes+':'+file.mtime_ns:'';}
+  function plotNumber(value,decimals=2){return value.toLocaleString('en-US',{maximumFractionDigits:decimals});}
+  function plotRange(points,column){
+    let low=Infinity,high=-Infinity;
+    for(const point of points)if(point[column]!==null){low=Math.min(low,point[column]);high=Math.max(high,point[column]);}
+    if(!Number.isFinite(low))return null;
+    const padding=low===high?Math.max(1,Math.abs(low)*.02):(high-low)*.06;
+    return [low-padding,high+padding];
+  }
+  function drawPlot(){
+    const width=plotCanvas.clientWidth, height=plotCanvas.clientHeight, scale=window.devicePixelRatio||1;
+    plotCanvas.width=Math.round(width*scale);plotCanvas.height=Math.round(height*scale);
+    plotContext.setTransform(scale,0,0,scale,0,0);
+    const ctx=plotContext, points=plotData?plotData.points:[];
+    ctx.clearRect(0,0,width,height);ctx.fillStyle='#fff';ctx.fillRect(0,0,width,height);
+    ctx.font='12px system-ui,sans-serif';plotView=null;
+    const robot=$('plot-robot').checked, sensor=$('plot-sensor').checked;
+    if(!points.length||(!robot&&!sensor)){
+      ctx.fillStyle='#617187';ctx.textAlign='center';ctx.fillText(!robot&&!sensor?'표시할 데이터를 체크하세요.':'표시할 CSV 데이터가 없습니다.',width/2,height/2);cachePlotImage();return;
+    }
+    const left=robot?78:20, right=sensor?100:20, top=32,bottom=height-42, end=width-right;
+    if(end<=left){cachePlotImage();return;}
+    const sliceRange=range=>range?[range[0]+(range[1]-range[0])*plotZoom[2],range[0]+(range[1]-range[0])*plotZoom[3]]:null;
+    if(plotRangeSource!==plotData){plotRanges=[plotRange(points,1),plotRange(points,2)];plotRangeSource=plotData;}
+    const robotRange=robot?sliceRange(plotRanges[0]):null, sensorRange=sensor?sliceRange(plotRanges[1]):null;
+    let timeMin=points[0][0],timeMax=points[points.length-1][0];
+    if(timeMax<=timeMin)timeMax=timeMin+.01;
+    const fullTimeMin=timeMin, fullTimeSpan=timeMax-timeMin;
+    timeMax=fullTimeMin+fullTimeSpan*plotZoom[1];timeMin=fullTimeMin+fullTimeSpan*plotZoom[0];
+    const x=time=>left+(time-timeMin)/(timeMax-timeMin)*(end-left);
+    const y=(value,range)=>bottom-(value-range[0])/(range[1]-range[0])*(bottom-top);
+    ctx.strokeStyle='#e5ebf3';ctx.lineWidth=1;
+    for(let i=0;i<=4;i++){
+      const yy=top+(bottom-top)*i/4;ctx.beginPath();ctx.moveTo(left,yy);ctx.lineTo(end,yy);ctx.stroke();
+      if(robotRange){ctx.fillStyle='#1766d3';ctx.textAlign='right';ctx.fillText(plotNumber(robotRange[1]-(robotRange[1]-robotRange[0])*i/4),left-9,yy+4);}
+      if(sensorRange){ctx.fillStyle='#b45e09';ctx.textAlign='left';ctx.fillText(plotNumber(sensorRange[1]-(sensorRange[1]-sensorRange[0])*i/4,0),end+9,yy+4);}
+      const xx=left+(end-left)*i/4;ctx.fillStyle='#617187';ctx.textAlign='center';ctx.fillText(plotNumber(timeMin+(timeMax-timeMin)*i/4,4),xx,bottom+20);
+    }
+    ctx.textAlign='left';if(robot){ctx.fillStyle='#1766d3';ctx.fillText('로봇 거리 (mm)',left,16);}
+    ctx.textAlign='right';if(sensor){ctx.fillStyle='#b45e09';ctx.fillText('센서값 (raw)',end,16);}
+    ctx.textAlign='center';ctx.fillStyle='#617187';ctx.fillText('시간 (s)',(left+end)/2,height-3);
+    // Keep every point in view, including adjacent points for clipped edge segments.
+    const first=Math.max(0,plotIndex(timeMin)-1),last=Math.min(points.length,plotIndex(timeMax)+1);
+    function line(column,range,color){
+      if(!range)return;
+      ctx.strokeStyle=color;ctx.lineWidth=1.7;ctx.beginPath();let started=false;
+      for(let i=first;i<last;i++){
+        const point=points[i];
+        if(point[column]===null){started=false;continue;}
+        const xx=x(point[0]),yy=y(point[column],range);
+        if(started)ctx.lineTo(xx,yy);else ctx.moveTo(xx,yy);started=true;
+      }
+      ctx.stroke();
+      if(points.length===1&&points[0][column]!==null){ctx.fillStyle=color;ctx.beginPath();ctx.arc(x(points[0][0]),y(points[0][column],range),3,0,Math.PI*2);ctx.fill();}
+    }
+    ctx.save();ctx.beginPath();ctx.rect(left,top,end-left,bottom-top);ctx.clip();
+    if(robot)line(1,robotRange,'#1766d3');if(sensor)line(2,sensorRange,'#df7a19');
+    ctx.restore();plotView={left,end,top,bottom,timeMin,timeMax};cachePlotImage();
+  }
+  function clampWindow(low,span){span=Math.max(.001,Math.min(1,span));low=Math.max(0,Math.min(1-span,low));return [low,low+span];}
+  function zoomPlot(factor,fx=.5,fy=.5){
+    if(!plotView)return;
+    for(const [axis,fraction] of [[0,fx],[2,fy]]){
+      const span=plotZoom[axis+1]-plotZoom[axis], next=span*factor;
+      plotZoom.splice(axis,2,...clampWindow(plotZoom[axis]+span*fraction-next*fraction,next));
+    }
+    $('plot-tooltip').hidden=true;drawPlot();
+  }
+  function resetPlot(){plotZoom=[0,1,0,1];$('plot-tooltip').hidden=true;drawPlot();}
+  function renderFiles(){
+    if(!state)return;
+    const key=JSON.stringify([state.files.map(file=>file.name),plotSelection,plotData&&plotData.name,plotBusy]);
+    if(key===fileListKey)return;fileListKey=key;$('files').replaceChildren();
+    for(const file of state.files){
+      const row=document.createElement('div');row.className='file-row';
+      const button=document.createElement('button');button.textContent=file.name;button.dataset.csv=file.name;
+      button.setAttribute('aria-pressed',String(!!plotData&&plotData.name===file.name));button.disabled=plotBusy;
+      button.addEventListener('click',()=>{plotSelection=file.name;renderFiles();loadPlot(true);});
+      const link=document.createElement('a');link.href='/data/'+encodeURIComponent(file.name);link.textContent='다운로드';link.download=file.name;
+      row.append(button,link);$('files').append(row);
+    }
+    if(!state.files.length)$('files').textContent='기록 없음';
+  }
+  async function loadPlot(force=false){
+    if(!connected||plotBusy||!state.files.length)return;
+    const target=plotSelection?state.files.find(file=>file.name===plotSelection):state.files[0];
+    if(!target){$('plot-message').textContent='선택한 CSV가 삭제되었습니다. 다른 파일을 선택하세요.';return;}
+    const requested=plotKey(target);
+    if(!force&&requested===plotAttempt&&Date.now()-plotAttemptTime<5000)return;
+    plotAttempt=requested;plotAttemptTime=Date.now();plotBusy=true;updateControls();renderFiles();
+    $('plot-message').textContent='CSV를 불러오는 중…';
+    try{
+      const url=plotSelection?'/api/plot/file/'+encodeURIComponent(plotSelection):'/api/plot/latest';
+      const response=await fetch(url,{cache:'no-store',signal:AbortSignal.timeout(20000)});
+      const result=await response.json();if(!response.ok)throw new Error(result.error||'CSV 읽기 실패');
+      if(!plotData||plotData.name!==result.name)plotZoom=[0,1,0,1];
+      plotData=result;plotVersion=plotKey(result);
+      $('plot-file').textContent=(plotSelection?'선택한 파일 · ':'최신 자동 · ')+(result.name||'CSV 기록 없음');
+      $('plot-message').textContent=result.rows?`원본 ${result.rows.toLocaleString()}행 · 표시 ${result.points.length.toLocaleString()}점 (전체) · 센서값 있는 행 ${result.sensor_rows.toLocaleString()}개`:'기록된 행이 없습니다.';
+      $('plot-tooltip').hidden=true;drawPlot();
+    }catch(error){$('plot-message').textContent=error.message;}
+    finally{plotBusy=false;updateControls();renderFiles();}
+  }
+  function updateLatestPlot(){
+    const target=plotSelection?state.files.find(file=>file.name===plotSelection):state.files[0];
+    if(!target){
+      if(plotSelection){$('plot-message').textContent='선택한 CSV가 삭제되었습니다. 다른 파일을 선택하세요.';return;}
+      if(plotData){plotData=null;plotVersion='';plotAttempt='';$('plot-file').textContent='CSV 기록 없음';drawPlot();}
+      return;
+    }
+    if((!plotData||target.name!==plotData.name||state.phase==='menu')&&plotKey(target)!==plotVersion)loadPlot();
+  }
+  $('plot-refresh').addEventListener('click',()=>loadPlot(true));
+  $('plot-latest').addEventListener('click',()=>{plotSelection=null;renderFiles();loadPlot(true);});
+  $('plot-zoom-in').addEventListener('click',()=>zoomPlot(.7));
+  $('plot-zoom-out').addEventListener('click',()=>zoomPlot(1/.7));
+  $('plot-reset').addEventListener('click',resetPlot);
+  plotCanvas.addEventListener('dblclick',resetPlot);
+  plotCanvas.addEventListener('wheel',event=>{
+    if(!plotView)return;
+    const box=plotCanvas.getBoundingClientRect(),xx=event.clientX-box.left,yy=event.clientY-box.top;
+    if(xx<plotView.left||xx>plotView.end||yy<plotView.top||yy>plotView.bottom)return;
+    event.preventDefault();
+    const delta=event.deltaY*(event.deltaMode===1?16:event.deltaMode===2?box.height:1);
+    zoomPlot(Math.exp(Math.max(-1,Math.min(1,delta*.002))),(xx-plotView.left)/(plotView.end-plotView.left),(plotView.bottom-yy)/(plotView.bottom-plotView.top));
+  },{passive:false});
+  plotCanvas.addEventListener('pointerdown',event=>{
+    if(!plotView||event.button!==0)return;
+    const box=plotCanvas.getBoundingClientRect(),xx=event.clientX-box.left,yy=event.clientY-box.top;
+    if(xx<plotView.left||xx>plotView.end||yy<plotView.top||yy>plotView.bottom)return;
+    plotDrag={id:event.pointerId,x:event.clientX,y:event.clientY,zoom:[...plotZoom],view:{...plotView}};
+    plotCanvas.setPointerCapture(event.pointerId);plotCanvas.classList.add('dragging');$('plot-tooltip').hidden=true;
+  });
+  function endDrag(){plotDrag=null;plotCanvas.classList.remove('dragging');}
+  for(const type of ['pointerup','pointercancel','lostpointercapture'])plotCanvas.addEventListener(type,endDrag);
+  for(const id of ['plot-robot','plot-sensor'])$(id).addEventListener('change',()=>{$('plot-tooltip').hidden=true;drawPlot();});
+  new ResizeObserver(()=>drawPlot()).observe($('plot-area'));
+  plotCanvas.addEventListener('pointermove',event=>{
+    if(plotDrag){
+      const drag=plotDrag,dx=(event.clientX-drag.x)/(drag.view.end-drag.view.left),dy=(event.clientY-drag.y)/(drag.view.bottom-drag.view.top);
+      const sx=drag.zoom[1]-drag.zoom[0],sy=drag.zoom[3]-drag.zoom[2];
+      plotZoom=[...clampWindow(drag.zoom[0]-dx*sx,sx),...clampWindow(drag.zoom[2]+dy*sy,sy)];drawPlot();return;
+    }
+    if(!plotView||!plotData)return;
+    const box=plotCanvas.getBoundingClientRect(),xx=event.clientX-box.left,yy=event.clientY-box.top;
+    if(xx<plotView.left||xx>plotView.end||yy<plotView.top||yy>plotView.bottom){$('plot-tooltip').hidden=true;drawPlotHover();return;}
+    const time=plotView.timeMin+(xx-plotView.left)/(plotView.end-plotView.left)*(plotView.timeMax-plotView.timeMin);
+    const points=plotData.points;let lo=Math.min(points.length-1,plotIndex(time));
+    if(lo>0&&Math.abs(points[lo-1][0]-time)<Math.abs(points[lo][0]-time))lo--;
+    const point=points[lo],tip=$('plot-tooltip');let text='시간  '+point[0].toFixed(3)+' s';
+    if($('plot-robot').checked)text+='\n로봇  '+point[1].toFixed(2)+' mm';
+    if($('plot-sensor').checked)text+='\n센서  '+(point[2]===null?'데이터 없음':plotNumber(point[2],0));
+    tip.textContent=text;tip.hidden=false;tip.style.left=Math.max(0,Math.min(xx+14,box.width-tip.offsetWidth))+'px';tip.style.top=Math.max(0,Math.min(yy+12,box.height-tip.offsetHeight))+'px';drawPlotHover(lo);
+  });
+  plotCanvas.addEventListener('pointerleave',()=>{$('plot-tooltip').hidden=true;drawPlotHover();});
+  function showError(text){$('error').textContent=text||'';$('error').hidden=!text;}
+  function remember(){document.querySelectorAll('[data-value]').forEach(input=>values[input.dataset.value]=Number(input.value));}
+  function field(key,label,unit,min,step='any',max=''){
+    return `<label>${label}<input data-value="${key}" type="number" value="${values[key]}" min="${min}" step="${step}" ${max?`max="${max}"`:''}>${unit}</label>`;
+  }
+  function renderPanel(){
+    const phase=state?state.phase:'offline';
+    const key=phase+':'+selected+':'+connected+':'+!!(state&&state.experiment_connected);
+    if(panelKey===key)return;
+    remember();panelKey=key;
+    let html;
+    if(!connected){html='<p class="muted">서버를 켠 뒤 이 페이지에 연결하세요.</p>';}
+    else if(!state.experiment_connected&&phase==='menu'){html='<h3>위의 실험 메뉴 실행 버튼을 누르세요.</h3><p class="muted">드라이버를 켠 뒤 원하는 모드를 선택하면 됩니다.</p>';}
+    else if(phase==='menu'){
+      if(selected===null)html='<h3>0~4번 중 원하는 모드를 선택하세요.</h3><p class="muted">현재 위치에서 준비하려면 1번부터 시작해도 됩니다.</p>';
+      else if(selected===0)html='<h3>0. 기본 자세로 이동</h3><p>J1/J6 유지 · J2~J5를 −90°, −90°, −90°, +90°로 이동합니다.</p><p class="muted">시작점은 1번에서 저장합니다.</p><div class="buttons"><button class="primary" data-action="start">기본 자세로 이동</button></div>';
+      else if(selected===1)html='<h3>1. 시작점 설정</h3><p>현재 위치 사용 또는 Z 조정 → 툴 Z 기울기 정렬 → stroke 저장</p><div class="buttons"><button class="primary" data-action="start">시작점 설정 열기</button></div>';
+      else {
+        const descriptions={2:'시작점 복귀 → stroke만큼 Z 하강 → 상단 복귀',3:'시작점 복귀 → X +300mm → 각 열에서 Z 왕복 → X −1mm씩 이동',4:'시작점 복귀 → 10mm마다 정지하며 Z 하강·상승'};
+        html=`<h3>${selected}. ${titles[selected]}</h3><div class="path"><span>${descriptions[selected]}</span></div>`;
+        if(selected===3)html+='<p class="muted">Y 고정 · X +300 → −300mm · 1mm 간격 · 601개 열 · 횟수는 열마다 적용</p>';
+        html+=`<p>저장한 stroke: <b>${state.start?state.start.distance+'mm':'1번에서 먼저 저장하세요'}</b></p><div class="fields">${field('repeats',selected===3?'열마다 왕복':'왕복 횟수','회',1,1,100)}${selected===4?field('dwell','정지 시간','초',0):''}</div><div class="buttons"><button class="primary" data-action="start">실험 실행</button></div>`;
+      }
+    } else if(phase==='choose_start')html='<h3>현재 위치를 시작점으로 사용할까요?</h3><div class="buttons"><button class="primary" data-action="yes">현재 위치 사용 · y</button><button data-action="no">위치 조정 · n</button></div>';
+    else if(phase==='distance')html=`<h3>Start distance (mm)</h3><p>원하는 양수 mm를 입력하세요. 소수도 가능합니다.</p><div class="fields">${field('distance','stroke','mm',0)}</div><div class="buttons"><button class="primary" data-action="save">마지막 정렬 후 시작점 저장</button></div>`;
+    else if(phase==='adjust')html=`<h3>Z adjustment · 위치 조정</h3><p>펜던트로 움직이거나 아래 버튼으로 베이스 Z를 조정하세요.</p><div class="buttons"><button data-jog="-10">−10mm</button><button data-jog="-1">−1mm</button><button data-jog="1">+1mm</button><button data-jog="10">+10mm</button></div><div class="fields">${field('delta','직접 입력','mm',-300,1,300)}<button data-action="jog">Z 이동</button></div><div class="buttons"><button class="primary" data-action="align">현재 위치에서 정렬 · a</button><button data-action="back">조정 완료 · e</button></div><p class="info">정렬은 XYZ/J6를 유지합니다. a는 저장하지 않습니다. e → 현재 위치 사용 → stroke 입력으로 저장합니다.</p>`;
+    else html=`<h3>${state.mode!==null?state.mode+'번 · ':''}${phases[phase]||phase}</h3><p class="muted">${phase==='aligning'?'TCP XYZ와 J6를 유지하며 툴 Z 기울기를 맞춥니다.':'진행 상태는 아래 실행 로그에서 볼 수 있습니다.'}</p>`;
+    $('panel').innerHTML=html;
+  }
+  function updateControls(){
+    const sending=pendingActions>0;
+    const idle=connected&&state&&state.phase==='menu';
+    const available=idle&&state.experiment_connected&&state.feedback.connected&&!state.feedback.publishers&&!sending;
+    $('driver-start').disabled=!connected||sending||!!(state&&(state.driver_owned||state.feedback.connected||state.feedback.joint_publishers));
+    $('driver-stop').disabled=!connected||sending||!idle||!(state&&state.driver_owned);
+    $('connect').disabled=!connected||sending||!idle||!!(state&&(state.experiment_connected||state.feedback.publishers));
+    buttons.forEach(button=>{button.disabled=!available;button.setAttribute('aria-pressed',String(Number(button.dataset.mode)===selected));});
+    $('stop').disabled=!connected||!state||state.phase==='menu'||['stopping','cancelling'].includes(state.phase);
+    $('stop').textContent=state&&state.phase==='returning'?'■ 복귀 중단':'■ 중단 · 메뉴로';
+    for(const id of ['plot-refresh','plot-latest'])$(id).disabled=!connected||plotBusy||!state||!state.files.length;
+    for(const id of ['plot-zoom-in','plot-zoom-out','plot-reset'])$(id).disabled=!plotData||!plotData.points.length;
+    $('panel').querySelectorAll('button').forEach(button=>{
+      button.disabled=sending||!connected||(state.phase==='menu'&&(!available||(selected>=2&&!state.start)));
+    });
+  }
+  async function action(payload){
+    if(!connected||(pendingActions>0&&payload.action!=='cancel'))return;
+    remember();pendingActions++;stateError=false;showError('');updateControls();
+    try{
+      const response=await fetch('/api/action',{method:'POST',headers:{'Content-Type':'application/json','X-Control-Token':state.token},body:JSON.stringify(payload),signal:AbortSignal.timeout(16000)});
+      const result=await response.json();if(!response.ok)throw new Error(result.error||'요청 실패');
+    }catch(error){showError(error.message);}
+    finally{pendingActions--;await refresh();}
+  }
+  buttons.forEach(button=>button.addEventListener('click',()=>{remember();selected=Number(button.dataset.mode);renderPanel();updateControls();}));
+  $('panel').addEventListener('click',event=>{
+    const button=event.target.closest('button');if(!button||button.disabled)return;remember();
+    if(button.dataset.jog)return action({action:'jog',delta:Number(button.dataset.jog)});
+    const name=button.dataset.action;
+    if(name==='start')action({action:'mode',mode:selected,repeats:values.repeats,dwell:values.dwell});
+    else if(name==='yes'||name==='no')action({action:'choose',value:name==='yes'?'y':'n'});
+    else if(name==='save')action({action:'save',distance:values.distance});
+    else if(name==='jog')action({action:'jog',delta:values.delta});
+    else action({action:name});
+  });
+  $('stop').addEventListener('click',()=>action({action:'cancel'}));
+  $('driver-start').addEventListener('click',()=>action({action:'driver_start'}));
+  $('driver-stop').addEventListener('click',()=>action({action:'driver_stop'}));
+  $('connect').addEventListener('click',()=>action({action:'connect'}));
+  async function refresh(){
+    if(location.protocol==='file:'){
+      connected=false;$('offline').hidden=false;$('server-status').textContent='웹 서버에서 열어주세요';renderPanel();updateControls();return;
+    }
+    try{
+      const response=await fetch('/api/state',{cache:'no-store',signal:AbortSignal.timeout(3000)});if(!response.ok)throw new Error('서버 연결 실패');
+      const next=await response.json();
+      if(previousPhase!=='menu'&&next.phase==='menu')selected=null;
+      if(next.mode!==null)selected=next.mode;
+      previousPhase=next.phase;state=next;connected=true;$('offline').hidden=true;
+      $('server-status').textContent='● 서버 연결';$('server-status').className='status good';
+      $('robot-status').textContent=state.feedback.connected?'● 로봇 피드백 연결':'로봇 피드백 없음';$('robot-status').className='status '+(state.feedback.connected?'good':'bad');
+      $('domain-status').textContent='ROS_DOMAIN_ID '+state.domain;
+      $('driver-info').textContent=state.driver_owned?(state.feedback.connected?'웹에서 실행 중 · 피드백 연결됨':'웹에서 실행 중 · 피드백 대기'):state.feedback.connected?'외부 터미널에서 실행 중':'실행 버튼으로 드라이버를 켜세요.';
+      $('experiment-info').textContent=state.experiment_connected?'실험 메뉴 연결됨 · 아래에서 모드를 선택하세요.':'실험 메뉴 실행 버튼을 누르세요.';
+      $('phase').textContent=(state.mode!==null?state.mode+'번 · ':'')+(phases[state.phase]||state.phase);
+      $('saved').textContent=state.start?'stroke '+state.start.distance+'mm 저장됨':'1번에서 시작점과 stroke를 저장하세요.';
+      if(state.start&&state.start.pose)$('saved').textContent+='  |  XYZ '+state.start.pose.slice(0,3).map(x=>(x*1000).toFixed(1)).join(', ')+'mm';
+      renderFiles();
+      updateLatestPlot();
+      const newest=state.logs.length?state.logs[state.logs.length-1].id:0;
+      if(newest!==lastLog){const log=$('logs');const atEnd=log.scrollHeight-log.scrollTop-log.clientHeight<35;log.textContent=state.logs.map(item=>item.text).join('\n');if(atEnd||lastLog===0)log.scrollTop=log.scrollHeight;lastLog=newest;}
+      if(state.error){showError(state.error);stateError=true;}
+      else if(state.phase==='menu'&&state.feedback.publishers){showError('다른 제어 노드가 실행 중입니다. 기존 실험 launch를 종료하세요.');stateError=true;}
+      else if(stateError){showError('');stateError=false;}
+      renderPanel();updateControls();
+    }catch(error){connected=false;$('server-status').textContent='서버 연결 끊김';$('server-status').className='status bad';$('phase').textContent='서버 연결 확인';$('offline').hidden=false;panelKey='';renderPanel();updateControls();}
+  }
+  async function poll(){await refresh();setTimeout(poll,400);}
+  poll();
+</script>
+</body>
+</html>

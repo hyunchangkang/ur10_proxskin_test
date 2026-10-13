@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>UR10 실험 실행 가이드</title>
+  <style>
+    :root{color-scheme:light;--ink:#182b41;--muted:#5c6c7e;--line:#dce4ed;--blue:#1766d3;--soft:#edf4ff;--paper:#fff}
+    *{box-sizing:border-box}body{margin:0;background:#f3f6fa;color:var(--ink);font:16px/1.65 system-ui,-apple-system,"Noto Sans KR",sans-serif}
+    main{max-width:1080px;margin:auto;padding:42px 24px 32px}h1,h2,h3,p{margin-top:0}h1{font-size:clamp(27px,4vw,38px);letter-spacing:-1.5px;margin-bottom:8px}h2{font-size:22px;letter-spacing:-.6px;margin-bottom:18px}h3{font-size:18px;margin-bottom:10px}
+    .eyebrow{color:var(--blue);font-size:12px;font-weight:750;letter-spacing:2px;margin-bottom:10px}.muted,small{color:var(--muted)}.badge{display:inline-block;background:var(--soft);color:#18549e;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:650;margin-bottom:22px}
+    section{margin-top:28px}.card{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:24px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.flow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:20px 0}.flow span{background:white;border:1px solid var(--line);padding:9px 15px;border-radius:10px}.flow b{color:var(--blue)}.flow i{font-style:normal;color:#93a4b7}
+    button,input{font:inherit}button{cursor:pointer;border:1px solid var(--line);background:white;color:var(--ink);border-radius:8px;padding:6px 12px;font-size:13px}button:hover{border-color:var(--blue);background:var(--soft)}button:focus-visible,input:focus-visible{outline:3px solid #75a9f2;outline-offset:3px}button:disabled{cursor:default;opacity:.55}code,pre,kbd{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}code{font-size:.9em}pre{background:#132338;color:#e7f0ff;border-radius:10px;padding:16px;overflow:auto;font-size:12px;line-height:1.9;margin:12px 0 0}kbd{border:1px solid #bdcadb;border-bottom-width:2px;border-radius:5px;padding:1px 7px;background:white;font-size:.9em}.card-top{display:flex;justify-content:space-between;align-items:center;gap:12px}.card-top h3{margin:0}.note{background:var(--soft);border-left:3px solid var(--blue);padding:12px 16px;border-radius:0 9px 9px 0;font-size:14px;margin-top:16px}.note p:last-child{margin-bottom:0}
+    .tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:16px 0}.tabs button{text-align:left;padding:12px;font-size:13px;line-height:1.4}.tabs b{display:block;font-size:23px;margin-bottom:4px}.tabs button[aria-selected="true"]{color:white;background:var(--blue);border-color:var(--blue)}.tabs button:nth-child(3){margin-left:8px}.panel{min-height:300px}.panel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:15px}.panel-head h3{font-size:23px;margin-bottom:2px}.english{font-size:12px;color:var(--muted);margin-bottom:18px}.tag{font-size:12px;background:#eef2f6;border-radius:6px;padding:4px 9px;white-space:nowrap}ol{padding-left:23px;margin:10px 0}li{padding-left:3px;margin-bottom:8px}.specs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.specs span{background:#f2f5f9;border-radius:7px;padding:7px 10px;font-size:13px}.preview{background:#f7f9fc;border:1px solid var(--line);border-radius:12px;padding:16px}.preview label{font-size:13px}.preview input{width:110px;border:1px solid #b9c9dc;border-radius:7px;padding:5px 9px;background:white;color:var(--ink);margin:0 6px}.preview svg{display:block;width:100%;height:auto;margin-top:6px}.preview p{font-size:13px;margin:5px 0 0}.setup{background:#f7f9fc;border-radius:10px;padding:15px}.setup p{margin-bottom:9px}.setup p:last-child{margin-bottom:0}svg text{font-family:system-ui,sans-serif;font-size:13px;fill:var(--ink)}
+    table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-size:12px}td code{white-space:nowrap}.path{overflow-wrap:anywhere;font-size:12px;color:var(--muted);margin-top:14px}a{color:var(--blue)}footer{color:var(--muted);font-size:12px;margin-top:24px;text-align:center}.status{font-size:12px;min-height:20px;color:var(--blue)}[hidden]{display:none!important}
+    @media(max-width:700px){main{padding:25px 14px}.grid{grid-template-columns:1fr}.card{padding:18px}.tabs{gap:4px}.tabs button{padding:9px 6px;font-size:11px}.tabs button:nth-child(3){margin-left:4px}.panel{min-height:0}.panel-head{flex-wrap:wrap}.flow{gap:6px}.flow span{padding:7px 10px;font-size:14px}table{font-size:12px}}
+    @media print{body{background:white}main{padding:0}.card{break-inside:avoid}button{display:none}.tabs button{display:block}.badge{border:1px solid var(--line)}pre{white-space:pre-wrap}.preview{break-inside:avoid}}
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="eyebrow">UR10 · MOTION GUIDE</p>
+    <h1>UR10 실험 실행 가이드</h1>
+    <p class="muted">터미널 두 개를 켜고, 시작점을 저장한 뒤 원하는 실험을 선택하세요.</p>
+    <span class="badge">안내 · 경로 미리보기 / 로봇 연결 없음</span>
+    <div class="flow" aria-label="권장 실행 순서">
+      <span><b>0</b> 기본 자세</span><i>→</i><span><b>1</b> 시작점 + stroke 저장</span><i>→</i><span><b>2 · 3 · 4</b> 실험 선택</span>
+    </div>
+    <small>현재 위치에서 시작하려면 0번을 건너뛰고 1번부터 진행하세요.</small>
+  </header>
+
+  <section aria-labelledby="run-heading">
+    <h2 id="run-heading">01. 터미널 두 개 실행</h2>
+    <div class="grid">
+      <article class="card">
+        <div class="card-top"><h3>A. 드라이버 먼저</h3><button type="button" data-copy="driver">명령어 복사</button></div>
+        <pre id="driver">source /opt/ros/humble/setup.bash
+source /home/ur/ros2_ws/install/setup.bash
+export ROS_DOMAIN_ID=125
+ros2 run urcb2_driver single_arm</pre>
+      </article>
+      <article class="card">
+        <div class="card-top"><h3>B. 실험 메뉴</h3><button type="button" data-copy="experiment">명령어 복사</button></div>
+        <pre id="experiment">source /opt/ros/humble/setup.bash
+source /home/ur/ros2_ws/install/setup.bash
+export ROS_DOMAIN_ID=125
+ros2 launch ur10_proxskin_test proxskin_soc_test.launch.py</pre>
+      </article>
+    </div>
+    <p class="muted" style="font-size:13px;margin:10px 0 0">두 터미널의 ROS_DOMAIN_ID를 같게 맞춥니다. 위 명령은 125 기준입니다.</p>
+    <div id="copy-status" class="status" role="status" aria-live="polite"></div>
+  </section>
+
+  <section aria-labelledby="mode-heading">
+    <h2 id="mode-heading">02. 번호를 누르면 무엇이 되나요?</h2>
+    <small>아래 버튼은 설명을 바꿉니다. 실제 로봇의 모드는 터미널에서 선택합니다.</small>
+    <div class="tabs" role="tablist" aria-label="모드 설명 선택">
+      <button id="tab-0" type="button" role="tab" aria-controls="mode-panel" aria-selected="true" tabindex="0" data-mode="0"><b>0</b>기본 자세</button>
+      <button id="tab-1" type="button" role="tab" aria-controls="mode-panel" aria-selected="false" tabindex="-1" data-mode="1"><b>1</b>시작점 설정</button>
+      <button id="tab-2" type="button" role="tab" aria-controls="mode-panel" aria-selected="false" tabindex="-1" data-mode="2"><b>2</b>Z 왕복</button>
+      <button id="tab-3" type="button" role="tab" aria-controls="mode-panel" aria-selected="false" tabindex="-1" data-mode="3"><b>3</b>X-Z 스캔</button>
+      <button id="tab-4" type="button" role="tab" aria-controls="mode-panel" aria-selected="false" tabindex="-1" data-mode="4"><b>4</b>1cm 정지 왕복</button>
+    </div>
+    <article id="mode-panel" class="card panel" role="tabpanel" aria-labelledby="tab-0" tabindex="0">
+      <div id="mode-content">
+        <h3>0. 기본 자세로 이동</h3>
+        <p>J1/J6는 현재 각도를 유지하고, J2~J5를 기본 각도로 이동합니다. 시작점 저장은 1번에서 진행합니다.</p>
+      </div>
+      <div id="motion-preview" class="preview" hidden>
+        <label for="stroke">예시 stroke</label><input id="stroke" type="number" min="0" step="any" value="200" inputmode="decimal" aria-describedby="preview-help"><small>mm</small>
+        <p id="preview-help" class="muted">이 입력은 그림의 예시만 바꿉니다. 실제 stroke는 터미널 1번에서 저장합니다.</p>
+        <div id="route"></div>
+        <p id="distance-example"></p>
+      </div>
+    </article>
+    <div class="note"><b>2·3·4번 실행 중 취소:</b> 실험 터미널에서 <kbd>q</kbd>만 누르세요. Enter는 필요 없습니다.<br>실험 중단 → CSV 저장 → 1번에서 저장한 시작점으로 저속 관절 복귀 → 메뉴. 복귀 중 <kbd>q</kbd>를 다시 누르면 복귀도 멈춥니다.</div>
+    <p class="muted" style="font-size:13px;margin-top:12px">완료 후에도 모드 선택 메뉴로 돌아옵니다. 드라이버 터미널은 계속 켜 둡니다.<br>2·3·4번의 시작 자세 복귀는 관절 이동이므로, 복귀 구간에서는 XYZ가 바뀔 수 있습니다.</p>
+  </section>
+
+  <section class="grid" aria-label="저장 항목과 HTML 제어 안내">
+    <article class="card">
+      <h2>03. 무엇이 저장되나요?</h2>
+      <p style="font-size:14px">2·3·4번마다 <a href="./data/">data 폴더</a>에 새 CSV를 만듭니다.</p>
+      <table>
+        <thead><tr><th>열</th><th>저장 내용</th></tr></thead>
+        <tbody>
+          <tr><td><code>time_s</code></td><td>첫 기록부터 경과 시간 · 초</td></tr>
+          <tr><td><code>robot_distance_mm</code></td><td>실제 TCP Z 기준 거리 · mm, 소수점 2자리</td></tr>
+          <tr><td><code>sensor_value</code></td><td>센서값 · CAN 0x41 front 수신</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:13px;margin:14px 0 0">100Hz(10ms)마다 시간·실제 TCP Z 거리·센서값을 함께 저장합니다. XYZ/RPY 전체는 CSV에 저장하지 않습니다.</p>
+      <p class="path">시작점 XYZ/RPY·관절값·stroke 저장 파일:<br><code>/home/ur/.ros/ur10_proxskin_test/experiment_start.json</code></p>
+      <small>실험 CSV: <code>experiment_vertical_…</code> / <code>experiment_columns_…</code> / <code>experiment_stepped_…</code></small>
+    </article>
+    <article class="card">
+      <h2>버튼으로 로봇 제어</h2>
+      <p><b>로컬 웹 서버를 한 번 켜면 버튼으로 실행할 수 있습니다.</b></p>
+      <div class="flow" style="gap:6px;font-size:13px"><span>HTML 버튼</span><i>→</i><span>로컬 제어 서버</span><i>→</i><span>ROS2 · 드라이버</span></div>
+      <pre>source /opt/ros/humble/setup.bash
+source /home/ur/ros2_ws/install/setup.bash
+export ROS_DOMAIN_ID=125
+ros2 run ur10_proxskin_test web_control</pre>
+      <p style="font-size:14px">명령 실행 시 브라우저가 자동으로 열립니다. <a href="http://127.0.0.1:8765"><b>제어 화면 열기 →</b></a><br>드라이버 실행 → 실험 메뉴 실행 → 모드 선택 → 실행</p>
+      <p class="muted" style="font-size:14px;margin-bottom:0">제어 화면은 시작점 설정, Z 조정, 정렬, 실험 중단과 CSV 다운로드를 지원합니다. 기존 실험 launch는 종료한 뒤 사용하세요.</p>
+    </article>
+  </section>
+  <footer>이동 축: 로봇 베이스 X/Z · 정렬 기준: 월드 Z · 상세 안내: <a href="./how_to_use.txt">how_to_use.txt</a></footer>
+  <noscript><p class="note">모드별 상세 설명을 보려면 JavaScript를 켜거나 <a href="./how_to_use.txt">텍스트 안내</a>를 열어주세요.</p></noscript>
+</main>
+<script>
+  'use strict';
+  const modes = [
+    {title:'0. 기본 자세로 이동', english:'Move to base pose', tag:'준비 · 시작점 저장 없음', body:`<ol><li>J1과 마지막 손목 관절 <b>J6의 현재 각도</b>를 유지합니다.</li><li>J2~J5를 <b>−90°, −90°, −90°, +90°</b>로 이동합니다.</li><li>메뉴로 돌아오면 <b>1번에서 시작점과 stroke를 저장</b>하세요.</li></ol><p class="muted">현재 위치에서 바로 실험을 준비하려면 0번은 생략해도 됩니다.</p>`},
+    {title:'1. 시작점과 stroke 저장', english:'Set up start position and distance', tag:'기준 설정', body:`<p><b>Use current position as start?</b> → 현재 위치를 쓸지 선택합니다.</p><div class="setup"><p><kbd>y</kbd> → <b>Start distance (mm):</b>에 원하는 stroke 입력 → 마지막 정렬 → 시작점 저장</p><p><kbd>n</kbd> → 펜던트 또는 <code>+10</code> / <code>-1</code> mm로 위치 조정</p><p><b>Z adjustment:</b>에서 <kbd>a</kbd> + Enter → 현재 위치에서 정렬 → 조정 계속</p><p><kbd>e</kbd> + Enter → 현재 위치 사용 여부 질문으로 복귀 → <kbd>y</kbd> → stroke 입력</p><p><kbd>q</kbd> + Enter → 저장 없이 메뉴로 복귀</p></div><p style="margin-top:14px">정렬은 <b>TCP XYZ와 J6를 유지하며 툴 Z 기울기</b>를 월드 Z에 맞춥니다. yaw를 90도로 맞추지 않습니다. <code>a</code>는 저장하지 않으며, stroke 입력 후 정렬을 다시 확인하고 저장합니다.</p><p class="muted">stroke는 양수 mm입니다. 예: 100, 200, 300, 125.5. 200을 저장하면 시작점이 200mm, 아래 끝점이 0mm가 됩니다.</p>`},
+    {title:'2. Z축으로 내려갔다 올라오기', english:'Z down / up', tag:'X/Y · TCP 방향 유지', body:`<ol><li><b>1번에서 저장한 시작 자세</b>로 복귀합니다.</li><li>저장한 stroke만큼 <b>베이스 −Z로 하강</b>합니다.</li><li>같은 경로로 시작점까지 올라옵니다. 입력한 횟수만큼 왕복합니다.</li></ol><p class="muted">왕복 횟수: 1~100회. stroke는 1번의 저장값을 사용합니다.</p>`},
+    {title:'3. X 위치를 옮기며 Z 왕복', english:'X-Z scan (Y fixed)', tag:'Y · TCP 방향 유지', body:`<ol><li><b>저장한 시작 자세</b>로 복귀합니다.</li><li><b>Y/Z를 유지하며 X로만 +300mm</b> 이동합니다.</li><li>그 X 위치에서 <b>stroke만큼 Z 하강 → 상단 복귀</b>를 합니다.</li><li>상단에서 <b>X를 −1mm 이동</b>하고 같은 Z 왕복을 반복합니다.</li><li>시작 X 기준 <b>−300mm</b>까지 진행하고, 마지막 열의 상단에서 종료합니다.</li></ol><div class="specs"><span>X: +300 → −300mm · 총 600mm</span><span>간격: 1mm = 0.1cm</span><span>총 601개 X 위치</span></div><p class="muted">위 값은 기본 설정입니다. X 범위는 Z stroke와 별개입니다. 입력한 왕복 횟수는 <b>각 X 위치마다</b> 적용됩니다.</p>`},
+    {title:'4. Z 왕복 중 1cm마다 정지', english:'Z down / up with 1 cm stops', tag:'X/Y · TCP 방향 유지', body:`<ol><li><b>저장한 시작 자세</b>로 복귀합니다.</li><li>2번과 같은 Z 왕복을 하되 <b>하강·상승 모두 10mm마다 정지</b>합니다.</li><li>왕복 횟수와 정지 시간을 입력합니다. 기본 정지 시간은 <b>2초</b>입니다.</li></ol><p class="muted">stroke가 10mm의 배수가 아니어도 끝점까지 이동합니다. 예: 125.5mm → 120mm 이동 위치에서 5.5mm 더 하강 → 끝점. 상승은 같은 정지 위치를 거칩니다.</p>`}
+  ];
+  let selected = 0;
+  const tabs = [...document.querySelectorAll('[data-mode]')];
+  const content = document.getElementById('mode-content');
+  const preview = document.getElementById('motion-preview');
+  const stroke = document.getElementById('stroke');
+  function drawRoute() {
+    const distance = Number(stroke.value);
+    const valid = stroke.value.trim() !== '' && Number.isFinite(distance) && distance > 0;
+    stroke.setAttribute('aria-invalid', String(!valid));
+    if (!valid) {
+      document.getElementById('route').textContent = '';
+      document.getElementById('distance-example').textContent = '예시 거리에 0보다 큰 mm 값을 입력하세요.';
+      return;
+    }
+    const label = distance.toLocaleString('ko-KR', {maximumFractionDigits:6});
+    const defs = `<defs><marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#1766d3"/></marker></defs>`;
+    let drawing;
+    if (selected === 3) {
+      drawing = `<text x="260" y="24" text-anchor="middle">① 시작점 → +X로 먼저 이동</text><path d="M265 66H454" fill="none" stroke="#1766d3" stroke-width="3" marker-end="url(#arrow)"/><circle cx="265" cy="66" r="5" fill="#182b41"/><text x="265" y="50" text-anchor="middle">시작 X</text><path d="M457 66H62" fill="none" stroke="#1766d3" stroke-width="1.5" stroke-dasharray="5 5" marker-end="url(#arrow)"/>${[460,390,60].map(x=>`<path d="M${x} 73V200" fill="none" stroke="#1766d3" stroke-width="3" marker-start="url(#arrow)" marker-end="url(#arrow)"/>`).join('')}<text x="460" y="227" text-anchor="middle">+300mm</text><text x="390" y="227" text-anchor="middle">+299mm</text><text x="60" y="227" text-anchor="middle">−300mm</text><text x="225" y="145" text-anchor="middle">② 각 열에서 Z 왕복</text><text x="225" y="169" text-anchor="middle">③ 상단에서 X −1mm씩</text><text x="225" y="198" text-anchor="middle">… 총 601개 열 …</text>`;
+    } else {
+      const stops = selected === 4 ? [1,2,3].filter(n=>n*10<distance).map(n=>`<circle cx="245" cy="${65+Math.min(n*10/distance,1)*130}" r="5" fill="#1766d3"/>`).join('') : '';
+      drawing = `<path d="M245 65V195" fill="none" stroke="#1766d3" stroke-width="3" marker-start="url(#arrow)" marker-end="url(#arrow)"/><circle cx="245" cy="65" r="5" fill="#182b41"/>${stops}<text x="270" y="68">시작점 · ${label}mm</text><text x="270" y="199">아래 끝점 · 0mm</text><text x="220" y="130" text-anchor="end">하강 ↓ / 상승 ↑</text><text x="270" y="135">${selected===4?'10mm마다 정지':'stroke '+label+'mm'}</text>`;
+    }
+    document.getElementById('route').innerHTML = `<svg viewBox="0 0 520 248" role="img" aria-label="${selected}번 경로 개념도">${defs}${drawing}<text x="260" y="246" text-anchor="middle" style="font-size:11px;fill:#5c6c7e">베이스 X-Z 평면 · 경로 개념도 (실제 축척 아님)</text></svg>`;
+    document.getElementById('distance-example').textContent = `목표 거리 기록: ${label} → 0 → ${label}mm · CSV에는 실제 피드백 거리 기록`;
+  }
+  function selectMode(index) {
+    selected = index;
+    tabs.forEach((tab,i)=>{tab.setAttribute('aria-selected',String(i===index));tab.tabIndex=i===index?0:-1;});
+    document.getElementById('mode-panel').setAttribute('aria-labelledby','tab-'+index);
+    const mode = modes[index];
+    content.innerHTML = `<div class="panel-head"><div><h3>${mode.title}</h3><p class="english">${mode.english}</p></div><span class="tag">${mode.tag}</span></div>${mode.body}`;
+    preview.hidden = index < 2;
+    if (index >= 2) drawRoute();
+  }
+  tabs.forEach((tab,index)=>{
+    tab.addEventListener('click',()=>selectMode(index));
+    tab.addEventListener('keydown',event=>{
+      let next;
+      if(event.key==='ArrowRight') next=(index+1)%tabs.length;
+      else if(event.key==='ArrowLeft') next=(index+tabs.length-1)%tabs.length;
+      else if(event.key==='Home') next=0;
+      else if(event.key==='End') next=tabs.length-1;
+      else return;
+      event.preventDefault();selectMode(next);tabs[next].focus();
+    });
+  });
+  stroke.addEventListener('input',drawRoute);
+  document.querySelectorAll('[data-copy]').forEach(button=>button.addEventListener('click',async()=>{
+    const text = document.getElementById(button.dataset.copy).textContent;
+    let copied = false;
+    try {
+      if (navigator.clipboard && window.isSecureContext) {await navigator.clipboard.writeText(text);copied=true;}
+    } catch (_) { /* Local file browsers can restrict the Clipboard API. */ }
+    if (!copied) {
+      const field=document.createElement('textarea');field.value=text;field.style.position='fixed';field.style.opacity='0';document.body.append(field);field.focus();field.select();
+      try {copied=document.execCommand('copy');} catch (_) {copied=false;}
+      field.remove();button.focus();
+    }
+    document.getElementById('copy-status').textContent=copied?'복사했습니다. 해당 터미널에 붙여넣으세요.':'자동 복사가 지원되지 않습니다. 명령어를 직접 선택해 복사하세요.';
+  }));
+  selectMode(0);
+</script>
+</body>
+</html>

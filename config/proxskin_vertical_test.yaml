@@ -1,0 +1,47 @@
+proxskin_vertical_test:
+  ros__parameters:
+    robot_name: "UR10_right"
+    # Mode 0 holds current J1/J6 and moves J2..J5. J6 preset is used only by legacy startup.
+    base_hold_j6: true
+    initial_arm_joint_deg: [-90.0, -90.0, -90.0, 90.0, -90.0]
+    initial_move_velocity_rad_s: 0.1
+    # Mode 1 holds current XYZ/J6 and aligns only tool Z to world Z, without yaw snapping.
+    # Current ur_description world <- base is a 180 degree Z rotation.
+    alignment_world_from_base_rpy_deg: [0.0, 0.0, 180.0]
+    alignment_angular_speed_deg_s: 5.0
+    alignment_joint_speed_rad_s: 0.1
+    alignment_max_position_error_mm: 5.0
+    # Confirm actual TCP arrival before reversing or moving to the next X column.
+    endpoint_position_tolerance_mm: 0.1
+    endpoint_orientation_tolerance_deg: 0.1
+    endpoint_settle_seconds: 0.25
+    endpoint_timeout_seconds: 5.0
+
+    # Experiment CSV always records robot distance; eCAN is optional.
+    enable_ecan: true
+    can_server_ip: "192.168.253.225"
+    can_server_port: 4001
+    reconnect_interval_sec: 1.0
+    socket_connect_timeout_sec: 1.0
+    sensor_stale_timeout_sec: 0.5
+    tracked_can_ids: [0x41, 0x42, 0x43]
+    csv_save_dir: "/home/ur/ros2_ws/src/ur10_proxskin_test/data"
+    # CSV sensor: CAN 0x41 front four bytes, big-endian unsigned raw count.
+    csv_sensor_can_id: 0x41
+    csv_sensor_channel: "front"
+
+    # Menu: z_max is downward travel from saved start; z_min/z_direction are legacy
+    # direct-node settings only. X/Y and TCP orientation stay fixed during Z motion.
+    calibration_speed_mm_s: 10.0
+    z_direction: "up"
+    z_min_offset_mm: 10.0
+    z_max_offset_mm: 300.0
+    z_step_mm: 1.0
+    repeat_count: 3
+    # 0: continuous scan; positive: pause at each 1 cm height, down and up.
+    dwell_seconds: 0.0
+
+    control_rate: 125.0
+    scan_speed_mm_s: 50.0
+    max_joint_velocity_rad_s: 1.0
+    max_actual_xy_error_mm: 5.0
